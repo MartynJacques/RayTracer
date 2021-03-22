@@ -65,15 +65,15 @@ public class RayTracer {
 
 	public static double hitSphere(final Vec3 center, float radius, Ray r) {
 		Vec3 oc = r.origin().sub(center);
-		float a = (float) Vec3.dot(r.direction(), r.direction());
-		float b = (float) (2.0f * Vec3.dot(oc, r.direction()));
-		float c = (float) (Vec3.dot(oc, oc) - radius * radius);
-		float discriminant = b * b - 4 * a * c;
+		float a = (float) r.direction().squared_length();
+		float halfB = (float) Vec3.dot(oc, r.direction());
+		float c = (float) (oc.squared_length() - radius * radius);
+		float discriminant = halfB * halfB - a * c;
 
 		if (discriminant < 0) {
 			return -1.0;
 		} else {
-			return (-b - Math.sqrt(discriminant)) / (2.0 * a);
+			return (-halfB - Math.sqrt(discriminant)) / a;
 		}
 	}
 }
