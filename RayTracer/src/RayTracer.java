@@ -20,39 +20,44 @@ public class RayTracer {
 	private static final Vec3 b = VERTICAL.div(2);
 	private static final Vec3 c = new Vec3(0, 0, FOCAL_LENGTH);
 	private static final Vec3 LOWER_LEFT_CORNER = a.sub(b).sub(c);
+	private static final int NUM_SAMPLES = 50;
 
 	public static void main(String[] args) {
 		DrawingPanel drawingPanel = new DrawingPanel(IMAGE_WIDTH, IMAGE_HEIGHT);
 		Graphics graphics = drawingPanel.getGraphics();
 		BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
+		Camera camera = new Camera();
+
 		Hittable[] list = new Hittable[2];
 		list[0] = new Sphere(new Vec3(0, 0, -1), 0.5);
 		list[1] = new Sphere(new Vec3(0, -100.5, -1), 100);
 		HittableList world = new HittableList(list, 2);
 
-		fillImage(graphics, image, world);
+		fillImage(graphics, image, world, camera);
 		System.out.println("Done");
 	}
 
-	private static void fillImage(Graphics graphics, BufferedImage image, Hittable world) {
+	private static void fillImage(Graphics graphics, BufferedImage image, Hittable world, Camera camera) {
 		for (int row = 0; row < IMAGE_HEIGHT; row++) {
 			System.out.println("Processing row: " + row);
 			for (int col = 0; col < IMAGE_WIDTH; col++) {
-				setPixelColour(image, row, col, world);
+				setPixelColour(image, row, col, world, camera);
 			}
 			graphics.drawImage(image, 0, 0, null);
 		}
 	}
 
-	private static void setPixelColour(BufferedImage image, int row, int col, Hittable world) {
-		float r = (float) col / (IMAGE_WIDTH - 1);
-		float g = (float) row / (IMAGE_HEIGHT - 1);
-
-		Vec3 direction = LOWER_LEFT_CORNER.add(HORIZONTAL.mul(r).add(VERTICAL.mul(g).sub(ORIGIN)));
-		Ray ray = new Ray(ORIGIN, direction);
-		Vec3 rayColour = rayColour(ray, world);
-
+	private static void setPixelColour(BufferedImage image, int row, int col, Hittable world, Camera camera) {
+		Vec3 antiAliasedColour = new Vec3(0, 0, 0);
+		Ray ray;
+		for (int i = 0; i < NUM_SAMPLES; i++) {
+			float r = (float) ((col + Math.random()) / (IMAGE_WIDTH - 1));
+			float g = (float) ((row + Math.random()) / (IMAGE_HEIGHT - 1));
+			ray = camera.getRay(r, g);
+			antiAliasedColour = antiAliasedColour.add(rayColour(ray, world));
+		}
+		Vec3 rayColour = antiAliasedColour.div(NUM_SAMPLES);
 		Color color = new Color((float) rayColour.r(), (float) rayColour.g(), (float) rayColour.b());
 		int y = IMAGE_HEIGHT - row - 1;
 		image.setRGB(col, y, color.getRGB());
