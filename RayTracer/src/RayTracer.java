@@ -22,15 +22,10 @@ public class RayTracer {
 	private static final Vec3 LOWER_LEFT_CORNER = a.sub(b).sub(c);
 
 	public static void main(String[] args) {
-
-		System.out.println(VIEWPORT_WIDTH);
-
 		DrawingPanel drawingPanel = new DrawingPanel(IMAGE_WIDTH, IMAGE_HEIGHT);
 		Graphics graphics = drawingPanel.getGraphics();
 		BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-
 		fillImage(graphics, image);
-
 		System.out.println("Done");
 	}
 
@@ -58,20 +53,27 @@ public class RayTracer {
 	}
 
 	private static Vec3 rayColour(Ray ray) {
-		if (hitSphere(new Vec3(0, 0, -1), 0.5f, ray)) {
-			return new Vec3(1, 0, 0);
+		var t = hitSphere(new Vec3(0, 0, -1), 0.5f, ray);
+		if (t > 0.0) {
+			Vec3 N = Vec3.unit_vector(ray.point_at_parameter(t).sub(new Vec3(0, 0, -1)));
+			return new Vec3(N.x() + 1, N.y() + 1, N.z() + 1).mul(0.5);
 		}
 		Vec3 unit_dir = Vec3.unit_vector(ray.direction());
-		double t = 0.5 * (unit_dir.y() + 1.0);
+		t = 0.5 * (unit_dir.y() + 1.0);
 		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
 	}
 
-	public static boolean hitSphere(final Vec3 center, float radius, Ray r) {
+	public static double hitSphere(final Vec3 center, float radius, Ray r) {
 		Vec3 oc = r.origin().sub(center);
 		float a = (float) Vec3.dot(r.direction(), r.direction());
 		float b = (float) (2.0f * Vec3.dot(oc, r.direction()));
 		float c = (float) (Vec3.dot(oc, oc) - radius * radius);
 		float discriminant = b * b - 4 * a * c;
-		return discriminant > 0;
+
+		if (discriminant < 0) {
+			return -1.0;
+		} else {
+			return (-b - Math.sqrt(discriminant)) / (2.0 * a);
+		}
 	}
 }
