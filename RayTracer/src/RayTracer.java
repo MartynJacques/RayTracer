@@ -25,41 +25,46 @@ public class RayTracer {
 		DrawingPanel drawingPanel = new DrawingPanel(IMAGE_WIDTH, IMAGE_HEIGHT);
 		Graphics graphics = drawingPanel.getGraphics();
 		BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-		fillImage(graphics, image);
+
+		Hittable[] list = new Hittable[2];
+		list[0] = new Sphere(new Vec3(0, 0, -1), 0.5);
+		list[1] = new Sphere(new Vec3(0, -100.5, -1), 100);
+		HittableList world = new HittableList(list, 2);
+
+		fillImage(graphics, image, world);
 		System.out.println("Done");
 	}
 
-	private static void fillImage(Graphics graphics, BufferedImage image) {
+	private static void fillImage(Graphics graphics, BufferedImage image, Hittable world) {
 		for (int row = 0; row < IMAGE_HEIGHT; row++) {
 			System.out.println("Processing row: " + row);
 			for (int col = 0; col < IMAGE_WIDTH; col++) {
-				setPixelColour(image, row, col);
+				setPixelColour(image, row, col, world);
 			}
 			graphics.drawImage(image, 0, 0, null);
 		}
 	}
 
-	private static void setPixelColour(BufferedImage image, int row, int col) {
+	private static void setPixelColour(BufferedImage image, int row, int col, Hittable world) {
 		float r = (float) col / (IMAGE_WIDTH - 1);
 		float g = (float) row / (IMAGE_HEIGHT - 1);
 
 		Vec3 direction = LOWER_LEFT_CORNER.add(HORIZONTAL.mul(r).add(VERTICAL.mul(g).sub(ORIGIN)));
 		Ray ray = new Ray(ORIGIN, direction);
-		Vec3 rayColour = rayColour(ray);
+		Vec3 rayColour = rayColour(ray, world);
 
 		Color color = new Color((float) rayColour.r(), (float) rayColour.g(), (float) rayColour.b());
 		int y = IMAGE_HEIGHT - row - 1;
 		image.setRGB(col, y, color.getRGB());
 	}
 
-	private static Vec3 rayColour(Ray ray) {
-		var t = hitSphere(new Vec3(0, 0, -1), 0.5f, ray);
-		if (t > 0.0) {
-			Vec3 N = Vec3.unit_vector(ray.point_at_parameter(t).sub(new Vec3(0, 0, -1)));
-			return new Vec3(N.x() + 1, N.y() + 1, N.z() + 1).mul(0.5);
+	private static Vec3 rayColour(Ray ray, Hittable world) {
+		HitRecord hitRecord = new HitRecord();
+		if (world.hit(ray, 0, Double.POSITIVE_INFINITY, hitRecord)) {
+			return hitRecord.normal.add(new Vec3(1, 1, 1)).mul(0.5);
 		}
 		Vec3 unit_dir = Vec3.unit_vector(ray.direction());
-		t = 0.5 * (unit_dir.y() + 1.0);
+		var t = 0.5 * (unit_dir.y() + 1.0);
 		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
 	}
 
