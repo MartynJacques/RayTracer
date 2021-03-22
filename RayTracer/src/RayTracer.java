@@ -4,8 +4,19 @@ import java.awt.image.BufferedImage;
 
 public class RayTracer {
 
-	private static final int IMAGE_WIDTH = 256;
-	private static final int IMAGE_HEIGHT = 256;
+	private static final int IMAGE_WIDTH = 800;
+	private static final double ASPECT_RATIO = 16.0 / 9.0;
+	private static final int IMAGE_HEIGHT = (int) (IMAGE_WIDTH / ASPECT_RATIO);
+
+	private static final double VIEWPORT_HEIGHT = 2.0;
+	private static final double VIEWPORT_WIDTH = ASPECT_RATIO * VIEWPORT_HEIGHT;
+	private static final double FOCAL_LENGTH = 1.0;
+
+	private static final Vec3 ORIGIN = new Vec3(0, 0, 0);
+	private static final Vec3 HORIZONTAL = new Vec3(VIEWPORT_WIDTH, 0, 0);
+	private static final Vec3 VERTICAL = new Vec3(0, VIEWPORT_HEIGHT, 0);
+	private static final Vec3 LOWER_LEFT_CORNER = ORIGIN
+			.sub(HORIZONTAL.div(2).sub(VERTICAL.div(2).sub(new Vec3(0, 0, FOCAL_LENGTH))));
 
 	public static void main(String[] args) {
 		DrawingPanel drawingPanel = new DrawingPanel(IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -30,11 +41,20 @@ public class RayTracer {
 	private static void setPixelColour(BufferedImage image, int row, int col) {
 		float r = (float) col / (IMAGE_WIDTH - 1);
 		float g = (float) row / (IMAGE_HEIGHT - 1);
-		float b = 0.25f;
 
-		Color color = new Color(r, g, b);
+		Vec3 direction = LOWER_LEFT_CORNER.add(HORIZONTAL.mul(r).add(VERTICAL.mul(g).sub(ORIGIN)));
+		Ray ray = new Ray(ORIGIN, direction);
+		Vec3 rayColour = rayColour(ray);
+
+		Color color = new Color((float) rayColour.r(), (float) rayColour.g(), (float) rayColour.b());
 		int y = IMAGE_HEIGHT - row - 1;
 		image.setRGB(col, y, color.getRGB());
+	}
+
+	private static Vec3 rayColour(Ray ray) {
+		Vec3 direction = ray.direction();
+		double t = 0.5 * (direction.y() + 1.0);
+		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
 	}
 
 }
