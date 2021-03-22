@@ -60,6 +60,9 @@ public class RayTracer {
 
 	private static Vec3 rayColour(Ray ray, Hittable world) {
 		HitRecord hitRecord = new HitRecord();
+
+		// Does the ray hit anything in the world? If so, colour the pixel the colour of
+		// the surface normal of the first hit
 		if (world.hit(ray, 0, Double.POSITIVE_INFINITY, hitRecord)) {
 			return hitRecord.normal.add(new Vec3(1, 1, 1)).mul(0.5);
 		}
