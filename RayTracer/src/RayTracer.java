@@ -15,10 +15,16 @@ public class RayTracer {
 	private static final Vec3 ORIGIN = new Vec3(0, 0, 0);
 	private static final Vec3 HORIZONTAL = new Vec3(VIEWPORT_WIDTH, 0, 0);
 	private static final Vec3 VERTICAL = new Vec3(0, VIEWPORT_HEIGHT, 0);
-	private static final Vec3 LOWER_LEFT_CORNER = ORIGIN
-			.sub(HORIZONTAL.div(2).sub(VERTICAL.div(2).sub(new Vec3(0, 0, FOCAL_LENGTH))));
+
+	private static final Vec3 a = ORIGIN.sub(HORIZONTAL.div(2));
+	private static final Vec3 b = VERTICAL.div(2);
+	private static final Vec3 c = new Vec3(0, 0, FOCAL_LENGTH);
+	private static final Vec3 LOWER_LEFT_CORNER = a.sub(b).sub(c);
 
 	public static void main(String[] args) {
+
+		System.out.println(VIEWPORT_WIDTH);
+
 		DrawingPanel drawingPanel = new DrawingPanel(IMAGE_WIDTH, IMAGE_HEIGHT);
 		Graphics graphics = drawingPanel.getGraphics();
 		BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
@@ -52,9 +58,20 @@ public class RayTracer {
 	}
 
 	private static Vec3 rayColour(Ray ray) {
-		Vec3 direction = ray.direction();
-		double t = 0.5 * (direction.y() + 1.0);
+		if (hitSphere(new Vec3(0, 0, -1), 0.5f, ray)) {
+			return new Vec3(1, 0, 0);
+		}
+		Vec3 unit_dir = Vec3.unit_vector(ray.direction());
+		double t = 0.5 * (unit_dir.y() + 1.0);
 		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
 	}
 
+	public static boolean hitSphere(final Vec3 center, float radius, Ray r) {
+		Vec3 oc = r.origin().sub(center);
+		float a = (float) Vec3.dot(r.direction(), r.direction());
+		float b = (float) (2.0f * Vec3.dot(oc, r.direction()));
+		float c = (float) (Vec3.dot(oc, oc) - radius * radius);
+		float discriminant = b * b - 4 * a * c;
+		return discriminant > 0;
+	}
 }
