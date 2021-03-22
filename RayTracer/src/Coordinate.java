@@ -17,12 +17,16 @@ public class Coordinate extends Vec3 {
 		this.vec = vec;
 	}
 
-	public double length() {
-		return vec.length();
+	public double x() {
+		return vec.get(0);
 	}
 
-	public double squaredLength() {
-		return vec.squaredLength();
+	public double y() {
+		return vec.get(1);
+	}
+
+	public double z() {
+		return vec.get(2);
 	}
 
 	public Coordinate add(Vec3 v2) {

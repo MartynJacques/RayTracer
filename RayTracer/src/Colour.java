@@ -17,12 +17,16 @@ public class Colour extends Vec3 {
 		this.vec = vec;
 	}
 
-	public double length() {
-		return vec.length();
+	public double r() {
+		return vec.get(0);
 	}
 
-	public double squaredLength() {
-		return vec.squaredLength();
+	public double g() {
+		return vec.get(1);
+	}
+
+	public double b() {
+		return vec.get(2);
 	}
 
 	public Colour add(Vec3 v2) {

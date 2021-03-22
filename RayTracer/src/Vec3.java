@@ -69,4 +69,10 @@ public class Vec3 {
 		e[2] = v.e[2];
 	}
 
+	public double get(int i) {
+		if (i < 0 || i > 2)
+			throw new IllegalAccessError();
+		return e[i];
+	}
+
 }
