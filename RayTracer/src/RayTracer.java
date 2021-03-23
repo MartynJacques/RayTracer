@@ -3,6 +3,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class RayTracer {
 
@@ -21,6 +22,27 @@ public class RayTracer {
 		Graphics graphics = drawingPanel.getGraphics();
 		BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
+		HittableList world = buildWorld();
+
+		Camera camera = setupCamera();
+
+		long start = System.currentTimeMillis();
+//		fillImage(graphics, image, world, camera);
+		fillImageParrallel(graphics, image, world, camera);
+		long elapsedTimeMillis = System.currentTimeMillis() - start;
+		System.out.printf("Done, took %.2fs", elapsedTimeMillis / 1000.0);
+	}
+
+	private static Camera setupCamera() {
+		Vec3 lookfrom = new Vec3(0, 5, -15);
+		Vec3 lookat = new Vec3(0, 0, 0);
+		double dist_to_focus = lookfrom.sub(lookat).length();
+		double aperture = 100;
+		return new Camera(lookfrom, lookat, new Vec3(0, 1, 0), 40, (double) (IMAGE_WIDTH) / IMAGE_HEIGHT, aperture,
+				dist_to_focus);
+	}
+
+	private static HittableList buildWorld() {
 		Material materialGround = new Lambertian(new Vec3(0.5, 0.5, 0.5));
 		Material diffuserRed = new Lambertian(new Vec3(0.9, 0.0, 0.0));
 		Material diffuserBlue = new Lambertian(new Vec3(0.1, 0.2, 0.5));
@@ -57,27 +79,24 @@ public class RayTracer {
 		hittableList.add(new Sphere(new Vec3(-3, 0, -5), 0.5, diffuserRed));
 
 		Hittable[] list = hittableList.stream().toArray(Hittable[]::new);
-		HittableList world = new HittableList(list, hittableList.size());
-
-		Vec3 lookfrom = new Vec3(0, 5, -15);
-		Vec3 lookat = new Vec3(0, 0, 0);
-		double dist_to_focus = lookfrom.sub(lookat).length(); // focus at end point
-		double aperture = 100;
-		Camera camera = new Camera(lookfrom, lookat, new Vec3(0, 1, 0), 40, (double) (IMAGE_WIDTH) / IMAGE_HEIGHT,
-				aperture, dist_to_focus);
-
-		fillImage(graphics, image, world, camera);
-		System.out.println("Done");
+		return new HittableList(list, hittableList.size());
 	}
 
 	private static void fillImage(Graphics graphics, BufferedImage image, Hittable world, Camera camera) {
 		for (int row = 0; row < IMAGE_HEIGHT; row++) {
-			System.out.println("Processing row: " + row);
 			for (int col = 0; col < IMAGE_WIDTH; col++) {
 				setPixelColour(image, row, col, world, camera);
 			}
 			graphics.drawImage(image, 0, 0, null);
 		}
+	}
+
+	private static void fillImageParrallel(Graphics graphics, BufferedImage image, Hittable world, Camera camera) {
+		IntStream.range(0, IMAGE_HEIGHT).parallel().forEach(i -> {
+			for (int col = 0; col < IMAGE_WIDTH; col++)
+				setPixelColour(image, i, col, world, camera);
+			graphics.drawImage(image, 0, 0, null);
+		});
 	}
 
 	private static void setPixelColour(BufferedImage image, int row, int col, Hittable world, Camera camera) {
