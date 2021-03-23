@@ -1,39 +1,41 @@
 public class Sphere extends Hittable {
 	Vec3 center;
 	double radius;
+	Material mat;
 
 	public Sphere() {
 	}
 
-	public Sphere(Vec3 cen, double r) {
+	public Sphere(Vec3 cen, double r, Material m) {
 		center = cen;
 		radius = r;
+		mat = m;
 	}
 
 	boolean hit(Ray r, double t_min, double t_max, HitRecord rec) {
 		Vec3 oc = r.origin().sub(center);
-		var a = r.direction().squared_length();
-		var halfB = Vec3.dot(oc, r.direction());
-		var c = oc.squared_length() - (radius * radius);
-
-		var discriminant = halfB * halfB - a * c;
-		if (discriminant < 0)
-			return false;
-		var sqrtd = Math.sqrt(discriminant);
-
-		var root = (-halfB - sqrtd) / a;
-		if (root < t_min || t_max < root) {
-			root = (-halfB + sqrtd) / a;
-			if (root < t_min || t_max < root) {
-				return false;
+		double a = Vec3.dot(r.direction(), r.direction());
+		double b = Vec3.dot(oc, r.direction());
+		double c = Vec3.dot(oc, oc) - radius * radius;
+		double discriminant = b * b - a * c;
+		if (discriminant > 0) {
+			rec.mat = mat;
+			rec.h = this;
+			double temp = (-b - Math.sqrt(discriminant)) / a;
+			if (temp < t_max && temp > t_min) {
+				rec.t = temp;
+				rec.p = r.point_at_parameter(rec.t);
+				rec.normal = rec.p.sub(center).div(radius);
+				return true;
+			}
+			temp = (-b + Math.sqrt(discriminant)) / a;
+			if (temp < t_max && temp > t_min) {
+				rec.t = temp;
+				rec.p = r.point_at_parameter(rec.t);
+				rec.normal = rec.p.sub(center).div(radius);
+				return true;
 			}
 		}
-
-		rec.t = root;
-		rec.p = r.point_at_parameter(rec.t);
-		Vec3 outwardNormal = (rec.p.sub(center)).div(radius);
-		rec.setFaceNormal(r, outwardNormal);
-
-		return true;
+		return false;
 	}
 }

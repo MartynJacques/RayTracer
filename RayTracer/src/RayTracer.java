@@ -21,11 +21,18 @@ public class RayTracer {
 
 		Camera camera = new Camera();
 
-		Hittable[] list = new Hittable[2];
-		list[0] = new Sphere(new Vec3(0, 0, -1), 0.5);
-		list[1] = new Sphere(new Vec3(0, -100.5, -1), 100);
-		HittableList world = new HittableList(list, 2);
+		Material materialGround = new Lambertian(new Vec3(0.8, 0.8, 0.0));
+		Material materialCenter = new Lambertian(new Vec3(0.7, 0.3, 0.3));
+		Material materialLeft = new Metal(new Vec3(0.8, 0.8, 0.8), 0.3);
+		Material materialRight = new Metal(new Vec3(0.8, 0.6, 0.2), 1);
 
+		Hittable[] list = new Hittable[4];
+		list[0] = new Sphere(new Vec3(0, -100.5, -1), 100, materialGround);
+		list[1] = new Sphere(new Vec3(0, 0, -1), 0.5, materialCenter);
+		list[2] = new Sphere(new Vec3(-1, 0, -1), 0.5, materialLeft);
+		list[3] = new Sphere(new Vec3(1, 0, -1), 0.5, materialRight);
+
+		HittableList world = new HittableList(list, 4);
 		fillImage(graphics, image, world, camera);
 		System.out.println("Done");
 	}
@@ -67,8 +74,12 @@ public class RayTracer {
 		// Does the ray hit anything in the world? If so, colour the pixel the colour of
 		// the surface normal of the first hit
 		if (world.hit(ray, 0.001, Double.POSITIVE_INFINITY, hitRecord)) {
-			Vec3 target = hitRecord.p.add(hitRecord.normal).add(Vec3.randomInUnitSphereUnitVector());
-			return rayColour(new Ray(hitRecord.p, target.sub(hitRecord.p)), world, depth - 1).mul(0.5);
+			Ray scattered = new Ray();
+			Vec3 attenuation = new Vec3();
+			if (hitRecord.mat.scatter(ray, hitRecord, attenuation, scattered)) {
+				return rayColour(scattered, world, depth - 1).mul(attenuation);
+			}
+			return new Vec3(0, 0, 0);
 		}
 		Vec3 unit_dir = Vec3.unit_vector(ray.direction());
 		var t = 0.5 * (unit_dir.y() + 1.0);
