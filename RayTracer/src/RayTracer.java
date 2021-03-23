@@ -9,10 +9,10 @@ public class RayTracer {
 	private static final int IMAGE_HEIGHT = (int) (IMAGE_WIDTH / ASPECT_RATIO);
 
 	// Rays per pixel
-	private static final int NUM_SAMPLES = 10;
+	private static final int NUM_SAMPLES = 100;
 
 	// Number of bounes
-	private static final int MAX_DEPTH = 10;
+	private static final int MAX_DEPTH = 50;
 
 	public static void main(String[] args) {
 		DrawingPanel drawingPanel = new DrawingPanel(IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -49,10 +49,13 @@ public class RayTracer {
 			ray = camera.getRay(r, g);
 			antiAliasedColour = antiAliasedColour.add(rayColour(ray, world, MAX_DEPTH));
 		}
-		Vec3 rayColour = antiAliasedColour.div(NUM_SAMPLES);
-		Color color = new Color((float) rayColour.r(), (float) rayColour.g(), (float) rayColour.b());
+		Vec3 finalColour = antiAliasedColour.div(NUM_SAMPLES);
+		finalColour = new Vec3(Math.sqrt(finalColour.e[0]), Math.sqrt(finalColour.e[1]), Math.sqrt(finalColour.e[2])); // gamma
+		Color colour = new Color((int) (255 * finalColour.r()), (int) (255 * finalColour.g()),
+				(int) (255 * finalColour.b()));
+
 		int y = IMAGE_HEIGHT - row - 1;
-		image.setRGB(col, y, color.getRGB());
+		image.setRGB(col, y, colour.getRGB());
 	}
 
 	private static Vec3 rayColour(Ray ray, Hittable world, int depth) {
