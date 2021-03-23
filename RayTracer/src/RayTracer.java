@@ -1,10 +1,12 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RayTracer {
 
-	private static final int IMAGE_WIDTH = 600;
+	private static final int IMAGE_WIDTH = 500;
 	private static final double ASPECT_RATIO = 16.0 / 9.0;
 	private static final int IMAGE_HEIGHT = (int) (IMAGE_WIDTH / ASPECT_RATIO);
 
@@ -19,20 +21,51 @@ public class RayTracer {
 		Graphics graphics = drawingPanel.getGraphics();
 		BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
-		Camera camera = new Camera();
+		Material materialGround = new Lambertian(new Vec3(0.5, 0.5, 0.5));
+		Material diffuserRed = new Lambertian(new Vec3(0.9, 0.0, 0.0));
+		Material diffuserBlue = new Lambertian(new Vec3(0.1, 0.2, 0.5));
+		Material diffuserGreen = new Lambertian(new Vec3(0.1, 0.9, 0.1));
+		Material glassBall = new Dielectric(new Vec3(1, 1, 1), 1.5);
+		Material matteMetal = new Metal(new Vec3(0.8, 0.6, 0.2), 1);
+		Material materialMetalShinyGold = new Metal(new Vec3(0.8, 0.6, 0.2), 0);
+		Material materialMetalShinySilver = new Metal(new Vec3(0.75, 0.75, 0.75), 0.05);
 
-		Material materialGround = new Lambertian(new Vec3(0.8, 0.8, 0.0));
-		Material materialCenter = new Lambertian(new Vec3(0.7, 0.3, 0.3));
-		Material materialLeft = new Dielectric(new Vec3(1, 1, 1), 1.5);
-		Material materialRight = new Metal(new Vec3(0.8, 0.6, 0.2), 1);
+		List<Hittable> hittableList = new ArrayList<>();
 
-		Hittable[] list = new Hittable[4];
-		list[0] = new Sphere(new Vec3(0, -100.5, -1), 100, materialGround);
-		list[1] = new Sphere(new Vec3(0, 0, -1), 0.5, materialCenter);
-		list[2] = new Sphere(new Vec3(-1, 0, -1), 0.5, materialLeft);
-		list[3] = new Sphere(new Vec3(1, 0, -1), 0.5, materialRight);
+		// Ground
+		hittableList.add(new Sphere(new Vec3(0, -100.5, -1), 100, materialGround));
 
-		HittableList world = new HittableList(list, 4);
+		// Big
+		hittableList.add(new Sphere(new Vec3(-1, 0.7, 5), 1.5, glassBall));
+		hittableList.add(new Sphere(new Vec3(-3, 1, 2), 1.5, materialMetalShinyGold));
+		hittableList.add(new Sphere(new Vec3(4, 1.5, 1), 2, materialMetalShinySilver));
+
+		// Small
+		hittableList.add(new Sphere(new Vec3(-2, 0, -1), 0.5, diffuserBlue));
+		hittableList.add(new Sphere(new Vec3(0, 0, -1), 0.5, diffuserRed));
+		hittableList.add(new Sphere(new Vec3(-1, 0, -1), 0.5, glassBall));
+		hittableList.add(new Sphere(new Vec3(3, 0, -1), 0.5, matteMetal));
+		hittableList.add(new Sphere(new Vec3(4, 0, -3), 0.5, diffuserBlue));
+		hittableList.add(new Sphere(new Vec3(2.5, 0, -5), 0.5, diffuserBlue));
+		hittableList.add(new Sphere(new Vec3(1, 0, -4), 0.5, glassBall));
+		hittableList.add(new Sphere(new Vec3(1, -0.1, 4), 0.5, diffuserRed));
+		hittableList.add(new Sphere(new Vec3(1.5, 0, 1), 0.5, diffuserGreen));
+		hittableList.add(new Sphere(new Vec3(2, -0.9, 12), 0.5, diffuserGreen));
+		hittableList.add(new Sphere(new Vec3(-5, -0.1, 1), 0.5, glassBall));
+		hittableList.add(new Sphere(new Vec3(-4, 0, -1.5), 0.5, diffuserGreen));
+		hittableList.add(new Sphere(new Vec3(-1.5, 0, -4.5), 0.5, diffuserGreen));
+		hittableList.add(new Sphere(new Vec3(-3, 0, -5), 0.5, diffuserRed));
+
+		Hittable[] list = hittableList.stream().toArray(Hittable[]::new);
+		HittableList world = new HittableList(list, hittableList.size());
+
+		Vec3 lookfrom = new Vec3(0, 5, -15);
+		Vec3 lookat = new Vec3(0, 0, 0);
+		double dist_to_focus = lookfrom.sub(lookat).length(); // focus at end point
+		double aperture = 7.1;
+		Camera camera = new Camera(lookfrom, lookat, new Vec3(0, 1, 0), 40, (double) (IMAGE_WIDTH) / IMAGE_HEIGHT,
+				aperture, dist_to_focus);
+
 		fillImage(graphics, image, world, camera);
 		System.out.println("Done");
 	}
