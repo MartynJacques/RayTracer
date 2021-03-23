@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 
 public class RayTracer {
 
-	private static final int IMAGE_WIDTH = 800;
+	private static final int IMAGE_WIDTH = 600;
 	private static final double ASPECT_RATIO = 16.0 / 9.0;
 	private static final int IMAGE_HEIGHT = (int) (IMAGE_WIDTH / ASPECT_RATIO);
 
@@ -67,21 +67,12 @@ public class RayTracer {
 		// Does the ray hit anything in the world? If so, colour the pixel the colour of
 		// the surface normal of the first hit
 		if (world.hit(ray, 0.001, Double.POSITIVE_INFINITY, hitRecord)) {
-			Vec3 target = hitRecord.p.add(hitRecord.normal).add(randomInUnitSphere());
+			Vec3 target = hitRecord.p.add(hitRecord.normal).add(Vec3.randomInUnitSphereUnitVector());
 			return rayColour(new Ray(hitRecord.p, target.sub(hitRecord.p)), world, depth - 1).mul(0.5);
 		}
 		Vec3 unit_dir = Vec3.unit_vector(ray.direction());
 		var t = 0.5 * (unit_dir.y() + 1.0);
 		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
-	}
-
-	private static Vec3 randomInUnitSphere() {
-		while (true) {
-			Vec3 p = Vec3.random(-1, 1);
-			if (p.squared_length() >= 1)
-				continue;
-			return p;
-		}
 	}
 
 	public static double hitSphere(final Vec3 center, float radius, Ray r) {

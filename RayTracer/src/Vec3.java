@@ -109,10 +109,23 @@ public class Vec3 {
 		return new Vec3(randomDouble(i, j), randomDouble(i, j), randomDouble(i, j));
 	}
 
+	public static Vec3 randomInUnitSphereUnitVector() {
+		return Vec3.unit_vector(randomInUnitSphere());
+	}
+
 	private static double randomDouble(int i, int j) {
 		Random random = new Random();
 		double randomValue = i + (j - i) * random.nextDouble();
 		return randomValue;
+	}
+
+	public static Vec3 randomInUnitSphere() {
+		while (true) {
+			Vec3 p = Vec3.random(-1, 1);
+			if (p.squared_length() >= 1)
+				continue;
+			return p;
+		}
 	}
 
 	@Override
