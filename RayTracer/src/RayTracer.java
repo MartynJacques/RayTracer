@@ -8,19 +8,11 @@ public class RayTracer {
 	private static final double ASPECT_RATIO = 16.0 / 9.0;
 	private static final int IMAGE_HEIGHT = (int) (IMAGE_WIDTH / ASPECT_RATIO);
 
-	private static final double VIEWPORT_HEIGHT = 2.0;
-	private static final double VIEWPORT_WIDTH = ASPECT_RATIO * VIEWPORT_HEIGHT;
-	private static final double FOCAL_LENGTH = 1.0;
+	// Rays per pixel
+	private static final int NUM_SAMPLES = 10;
 
-	private static final Vec3 ORIGIN = new Vec3(0, 0, 0);
-	private static final Vec3 HORIZONTAL = new Vec3(VIEWPORT_WIDTH, 0, 0);
-	private static final Vec3 VERTICAL = new Vec3(0, VIEWPORT_HEIGHT, 0);
-
-	private static final Vec3 a = ORIGIN.sub(HORIZONTAL.div(2));
-	private static final Vec3 b = VERTICAL.div(2);
-	private static final Vec3 c = new Vec3(0, 0, FOCAL_LENGTH);
-	private static final Vec3 LOWER_LEFT_CORNER = a.sub(b).sub(c);
-	private static final int NUM_SAMPLES = 50;
+	// Number of bounes
+	private static final int MAX_DEPTH = 10;
 
 	public static void main(String[] args) {
 		DrawingPanel drawingPanel = new DrawingPanel(IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -55,7 +47,7 @@ public class RayTracer {
 			float r = (float) ((col + Math.random()) / (IMAGE_WIDTH - 1));
 			float g = (float) ((row + Math.random()) / (IMAGE_HEIGHT - 1));
 			ray = camera.getRay(r, g);
-			antiAliasedColour = antiAliasedColour.add(rayColour(ray, world));
+			antiAliasedColour = antiAliasedColour.add(rayColour(ray, world, MAX_DEPTH));
 		}
 		Vec3 rayColour = antiAliasedColour.div(NUM_SAMPLES);
 		Color color = new Color((float) rayColour.r(), (float) rayColour.g(), (float) rayColour.b());
@@ -63,17 +55,30 @@ public class RayTracer {
 		image.setRGB(col, y, color.getRGB());
 	}
 
-	private static Vec3 rayColour(Ray ray, Hittable world) {
+	private static Vec3 rayColour(Ray ray, Hittable world, int depth) {
 		HitRecord hitRecord = new HitRecord();
+
+		if (depth <= 0)
+			return new Vec3(0, 0, 0);
 
 		// Does the ray hit anything in the world? If so, colour the pixel the colour of
 		// the surface normal of the first hit
 		if (world.hit(ray, 0, Double.POSITIVE_INFINITY, hitRecord)) {
-			return hitRecord.normal.add(new Vec3(1, 1, 1)).mul(0.5);
+			Vec3 target = hitRecord.p.add(hitRecord.normal).add(randomInUnitSphere());
+			return rayColour(new Ray(hitRecord.p, target.sub(hitRecord.p)), world, depth - 1).mul(0.5);
 		}
 		Vec3 unit_dir = Vec3.unit_vector(ray.direction());
 		var t = 0.5 * (unit_dir.y() + 1.0);
 		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
+	}
+
+	private static Vec3 randomInUnitSphere() {
+		while (true) {
+			Vec3 p = Vec3.random(-1, 1);
+			if (p.squared_length() >= 1)
+				continue;
+			return p;
+		}
 	}
 
 	public static double hitSphere(final Vec3 center, float radius, Ray r) {

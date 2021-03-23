@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.Random;
+
 //vector class
 
 public class Vec3 {
@@ -101,4 +104,20 @@ public class Vec3 {
 		e[1] = v.e[1];
 		e[2] = v.e[2];
 	}
+
+	public static Vec3 random(int i, int j) {
+		return new Vec3(randomDouble(i, j), randomDouble(i, j), randomDouble(i, j));
+	}
+
+	private static double randomDouble(int i, int j) {
+		Random random = new Random();
+		double randomValue = i + (j - i) * random.nextDouble();
+		return randomValue;
+	}
+
+	@Override
+	public String toString() {
+		return "Vec3 [e=" + Arrays.toString(e) + "]";
+	}
+
 }
