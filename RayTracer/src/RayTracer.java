@@ -23,7 +23,7 @@ public class RayTracer {
 
 		Material materialGround = new Lambertian(new Vec3(0.8, 0.8, 0.0));
 		Material materialCenter = new Lambertian(new Vec3(0.7, 0.3, 0.3));
-		Material materialLeft = new Metal(new Vec3(0.8, 0.8, 0.8), 0.3);
+		Material materialLeft = new Dielectric(new Vec3(1, 1, 1), 1.5);
 		Material materialRight = new Metal(new Vec3(0.8, 0.6, 0.2), 1);
 
 		Hittable[] list = new Hittable[4];
