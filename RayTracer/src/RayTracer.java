@@ -6,7 +6,7 @@ import java.util.List;
 
 public class RayTracer {
 
-	private static final int IMAGE_WIDTH = 500;
+	private static final int IMAGE_WIDTH = 600;
 	private static final double ASPECT_RATIO = 16.0 / 9.0;
 	private static final int IMAGE_HEIGHT = (int) (IMAGE_WIDTH / ASPECT_RATIO);
 
@@ -50,7 +50,7 @@ public class RayTracer {
 		hittableList.add(new Sphere(new Vec3(1, 0, -4), 0.5, glassBall));
 		hittableList.add(new Sphere(new Vec3(1, -0.1, 4), 0.5, diffuserRed));
 		hittableList.add(new Sphere(new Vec3(1.5, 0, 1), 0.5, diffuserGreen));
-		hittableList.add(new Sphere(new Vec3(2, -0.9, 12), 0.5, diffuserGreen));
+		hittableList.add(new Sphere(new Vec3(2, -0.85, 12), 0.5, diffuserGreen));
 		hittableList.add(new Sphere(new Vec3(-5, -0.1, 1), 0.5, glassBall));
 		hittableList.add(new Sphere(new Vec3(-4, 0, -1.5), 0.5, diffuserGreen));
 		hittableList.add(new Sphere(new Vec3(-1.5, 0, -4.5), 0.5, diffuserGreen));
@@ -62,7 +62,7 @@ public class RayTracer {
 		Vec3 lookfrom = new Vec3(0, 5, -15);
 		Vec3 lookat = new Vec3(0, 0, 0);
 		double dist_to_focus = lookfrom.sub(lookat).length(); // focus at end point
-		double aperture = 7.1;
+		double aperture = 100;
 		Camera camera = new Camera(lookfrom, lookat, new Vec3(0, 1, 0), 40, (double) (IMAGE_WIDTH) / IMAGE_HEIGHT,
 				aperture, dist_to_focus);
 
