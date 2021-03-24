@@ -27,10 +27,13 @@ public class RayTracer {
 		Camera camera = setupCamera();
 
 		long start = System.currentTimeMillis();
-//		fillImage(graphics, image, world, camera);
-		fillImageParrallel(graphics, image, world, camera);
+		if (args.length != 0 && args[0].equals("--parallel")) {
+			fillImageParrallel(graphics, image, world, camera);
+		} else {
+			fillImage(graphics, image, world, camera);
+		}
 		long elapsedTimeMillis = System.currentTimeMillis() - start;
-		System.out.printf("Done, took %.2fs", elapsedTimeMillis / 1000.0);
+		System.out.printf("Done, took %.2fs%n", elapsedTimeMillis / 1000.0);
 	}
 
 	private static Camera setupCamera() {
