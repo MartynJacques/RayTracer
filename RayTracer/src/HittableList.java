@@ -1,26 +1,29 @@
+import java.util.List;
+
 public class HittableList extends Hittable {
-	int list_size;
-	Hittable[] list;
+
+	List<Hittable> hittableList;
 
 	HittableList() {
 	}
 
-	HittableList(Hittable[] l, int n) {
-		list = l;
-		list_size = n;
+	HittableList(List<Hittable> hittableList) {
+		this.hittableList = hittableList;
 	}
 
-	boolean hit(Ray r, double t_min, double t_max, HitRecord rec) {
-		HitRecord temp_rec = new HitRecord();
-		boolean hit_anything = false;
-		double closest_so_far = t_max;
-		for (int i = 0; i < list_size; i++) {
-			if (list[i].hit(r, t_min, closest_so_far, temp_rec)) {
-				hit_anything = true;
-				closest_so_far = temp_rec.t;
-				rec.set(temp_rec);
+	/**
+	 * Does the ray hit anything in the list?
+	 */
+	boolean hit(Ray ray, double tMin, double tMax, HitRecord hitRecord) {
+		HitRecord tempHitRecord = new HitRecord();
+		boolean hitAnyting = false;
+		double closestSoFar = tMax;
+		for (Hittable hittable : hittableList)
+			if (hittable.hit(ray, tMin, closestSoFar, tempHitRecord)) {
+				hitAnyting = true;
+				closestSoFar = tempHitRecord.t;
+				hitRecord.set(tempHitRecord);
 			}
-		}
-		return hit_anything;
+		return hitAnyting;
 	}
 }
