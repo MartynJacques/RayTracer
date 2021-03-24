@@ -77,7 +77,7 @@ class Metal extends Material {
 	}
 
 	public boolean scatter(Ray r_in, HitRecord rec, Vec3 attentuation, Ray scattered) {
-		Vec3 reflected = Utilities.reflect(Vec3.unit_vector(r_in.direction()), rec.normal);
+		Vec3 reflected = Utilities.reflect(Vec3.unitVector(r_in.direction()), rec.normal);
 		scattered.set(new Ray(rec.p, reflected.add(Utilities.random_in_unit_sphere().mul(fuzz))));
 		attentuation.set(albedo);
 		return (Vec3.dot(scattered.direction(), rec.normal) > 0);

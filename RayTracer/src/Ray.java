@@ -1,29 +1,29 @@
 public class Ray {
-	Vec3 A;
-	Vec3 B;
+	Vec3 origin;
+	Vec3 direction;
 
 	public Ray() {
 	}
 
 	public Ray(Vec3 a, Vec3 b) {
-		A = a;
-		B = b;
+		origin = a;
+		direction = b;
 	}
 
 	public Vec3 origin() {
-		return A;
+		return origin;
 	}
 
 	public Vec3 direction() {
-		return B;
+		return direction;
 	}
 
 	public Vec3 point_at_parameter(double t) {
-		return A.add(B.mul(t));
+		return origin.add(direction.mul(t));
 	}
 
 	public void set(Ray r) {
-		A = r.A;
-		B = r.B;
+		origin = r.origin;
+		direction = r.direction;
 	}
 }

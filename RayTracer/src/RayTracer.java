@@ -23,7 +23,6 @@ public class RayTracer {
 		BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
 		HittableList world = buildWorld();
-
 		Camera camera = setupCamera();
 
 		long start = System.currentTimeMillis();
@@ -126,8 +125,6 @@ public class RayTracer {
 		if (depth <= 0)
 			return new Vec3(0, 0, 0);
 
-		// Does the ray hit anything in the world? If so, colour the pixel the colour of
-		// the surface normal of the first hit
 		if (world.hit(ray, 0.001, Double.POSITIVE_INFINITY, hitRecord)) {
 			Ray scattered = new Ray();
 			Vec3 attenuation = new Vec3();
@@ -136,7 +133,7 @@ public class RayTracer {
 			}
 			return new Vec3(0, 0, 0);
 		}
-		Vec3 unit_dir = Vec3.unit_vector(ray.direction());
+		Vec3 unit_dir = Vec3.unitVector(ray.direction());
 		var t = 0.5 * (unit_dir.y() + 1.0);
 		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
 	}

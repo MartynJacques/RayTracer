@@ -1,8 +1,6 @@
 import java.util.Arrays;
 import java.util.Random;
 
-//vector class
-
 public class Vec3 {
 	double[] e = new double[3];
 
@@ -15,7 +13,6 @@ public class Vec3 {
 		e[2] = e2;
 	}
 
-	// coordinate
 	public double x() {
 		return e[0];
 	}
@@ -28,7 +25,6 @@ public class Vec3 {
 		return e[2];
 	}
 
-	// color
 	public double r() {
 		return e[0];
 	}
@@ -45,21 +41,18 @@ public class Vec3 {
 		return Math.sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
 	}
 
-	public double squared_length() {
+	public double squaredLength() {
 		return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
 	}
 
-	// add
 	public Vec3 add(Vec3 v2) {
 		return new Vec3(e[0] + v2.e[0], e[1] + v2.e[1], e[2] + v2.e[2]);
 	}
 
-	// subtract
 	public Vec3 sub(Vec3 v2) {
 		return new Vec3(e[0] - v2.e[0], e[1] - v2.e[1], e[2] - v2.e[2]);
 	}
 
-	// divide
 	public Vec3 div(Vec3 v2) {
 		return new Vec3(e[0] / v2.e[0], e[1] / v2.e[1], e[2] / v2.e[2]);
 	}
@@ -68,7 +61,6 @@ public class Vec3 {
 		return new Vec3(e[0] / t, e[1] / t, e[2] / t);
 	}
 
-	// multiply
 	public Vec3 mul(Vec3 v2) {
 		return new Vec3(e[0] * v2.e[0], e[1] * v2.e[1], e[2] * v2.e[2]);
 	}
@@ -77,25 +69,16 @@ public class Vec3 {
 		return new Vec3(e[0] * t, e[1] * t, e[2] * t);
 	}
 
-	// dot product
 	public static double dot(Vec3 v1, Vec3 v2) {
 		return v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2];
 	}
 
-	// cross product
 	public static Vec3 cross(Vec3 v1, Vec3 v2) {
 		return new Vec3((v1.e[1] * v2.e[2] - v1.e[2] * v2.e[1]), -(v1.e[0] * v2.e[2] - v1.e[2] * v2.e[0]),
 				(v1.e[0] * v2.e[1] - v1.e[1] * v2.e[0]));
 	}
 
-	public void unit() {
-		double k = 1.0 / length();
-		e[0] *= k;
-		e[1] *= k;
-		e[2] *= k;
-	}
-
-	public static Vec3 unit_vector(Vec3 v) {
+	public static Vec3 unitVector(Vec3 v) {
 		return v.div(v.length());
 	}
 
@@ -110,7 +93,7 @@ public class Vec3 {
 	}
 
 	public static Vec3 randomInUnitSphereUnitVector() {
-		return Vec3.unit_vector(randomInUnitSphere());
+		return Vec3.unitVector(randomInUnitSphere());
 	}
 
 	private static double randomDouble(int i, int j) {
@@ -122,7 +105,7 @@ public class Vec3 {
 	public static Vec3 randomInUnitSphere() {
 		while (true) {
 			Vec3 p = Vec3.random(-1, 1);
-			if (p.squared_length() >= 1)
+			if (p.squaredLength() >= 1)
 				continue;
 			return p;
 		}
