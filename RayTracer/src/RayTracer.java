@@ -11,10 +11,10 @@ public class RayTracer {
 	private static final double ASPECT_RATIO = 16.0 / 9.0;
 	private static final int IMAGE_HEIGHT = (int) (IMAGE_WIDTH / ASPECT_RATIO);
 
-	// Rays per pixel
+	// Rays per pixel, for anti-aliasing
 	private static final int NUM_SAMPLES = 100;
 
-	// Number of bounes
+	// Maximum amount of time
 	private static final int MAX_DEPTH = 50;
 
 	public static void main(String[] args) {
@@ -138,17 +138,4 @@ public class RayTracer {
 		return new Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(new Vec3(0.5, 0.7, 1.0).mul(t));
 	}
 
-	public static double hitSphere(final Vec3 center, float radius, Ray r) {
-		Vec3 oc = r.origin().sub(center);
-		float a = (float) r.direction().squared_length();
-		float halfB = (float) Vec3.dot(oc, r.direction());
-		float c = (float) (oc.squared_length() - radius * radius);
-		float discriminant = halfB * halfB - a * c;
-
-		if (discriminant < 0) {
-			return -1.0;
-		} else {
-			return (-halfB - Math.sqrt(discriminant)) / a;
-		}
-	}
 }
